@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Security</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .verification-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            color: var(--second-color);
+        }
+        
+        .verification-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        
+        .verification-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .verification-code {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            color: var(--second-color);
+            transition: all 0.3s;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: var(--second-color);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .verify-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .verify-btn:hover {
+            background-color: var(--second-color);
+        }
+        
+        .resend-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .resend-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .timer {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <h1 class="verification-title">Verify Your Email</h1>
+        
+        <div class="verification-info">
+            <p>We've sent a 6-digit verification code to:</p>
+            <p><strong id="userEmail">user@example.com</strong></p>
+            <p>Please enter the code below to complete your registration.</p>
+        </div>
+        
+        <div class="timer" id="timer">Time remaining: 10:00</div>
+        
+        <form id="verificationForm">
+            <div class="verification-code">
+                <input type="text" class="code-input" maxlength="1" required>
+                <input type="text" class="code-input" maxlength="1" required>
+                <input type="text" class="code-input" maxlength="1" required>
+                <input type="text" class="code-input" maxlength="1" required>
+                <input type="text" class="code-input" maxlength="1" required>
+                <input type="text" class="code-input" maxlength="1" required>
+            </div>
+            
+            <button type="submit" class="verify-btn">Verify Email</button>
+        </form>
+        
+        <div class="resend-link">
+            <p>Didn't receive the code? <a href="#" onclick="resendCode()">Resend Code</a></p>
+            <p><a href="signup.html">Back to Signup</a></p>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 60; // 1 minute in seconds (updated from 10 minutes)
+        let verificationCode = '';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get real email from localStorage (stored during signup)
+            const userEmail = localStorage.getItem('userEmail');
+            const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
+            
+            // Use real email first, fallback to pendingUser data
+            document.getElementById('userEmail').textContent = userEmail || userData.email || 'user@example.com';
+            
+            // Check if demo code is available
+            const demoCode = localStorage.getItem('demoCode');
+            if (demoCode) {
+                verificationCode = demoCode;
+                console.log('Using demo code from backend:', verificationCode);
+                document.getElementById('timer').innerHTML = 'Demo Mode: Code received from backend';
+            } else {
+                // Generate verification code
+                verificationCode = generateVerificationCode();
+                console.log('Verification code (for demo):', verificationCode);
+                
+                // Start timer
+                startTimer();
+            }
+            
+            // Setup input handlers
+            setupCodeInputs();
+        });
+        
+        // Generate 6-digit verification code
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        // Timer countdown
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            
+            const interval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerElement.textContent = 'Code expired';
+                    timerElement.style.color = '#ff4444';
+                    disableInputs();
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Setup code input fields
+        function setupCodeInputs() {
+            const inputs = document.querySelectorAll('.code-input');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    if (e.target.value.length === 1) {
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+                
+                // Only allow numbers
+                input.addEventListener('keypress', function(e) {
+                    if (!/[0-9]/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        }
+        
+        // Handle verification form submission
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const inputs = document.querySelectorAll('.code-input');
+            const enteredCode = Array.from(inputs).map(input => input.value).join('');
+            const userEmail = localStorage.getItem('userEmail') || document.getElementById('userEmail').textContent;
+            
+            try {
+                // Call backend API to verify OTP
+                const response = await fetch('http://localhost:3000/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        otp: enteredCode
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    localStorage.setItem('emailVerified', 'true');
+                    alert('Email verified successfully! Your account is now active.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(result.message || 'Invalid verification code. Please try again.');
+                    clearInputs();
+                }
+                
+            } catch (error) {
+                console.error('Verification error:', error);
+                // Fallback to demo verification
+                if (enteredCode === verificationCode) {
+                    localStorage.setItem('emailVerified', 'true');
+                    alert('Email verified successfully! Your account is now active.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Invalid verification code. Please try again.');
+                    clearInputs();
+                }
+            }
+        });
+        
+        // Resend code
+        async function resendCode() {
+            const userEmail = localStorage.getItem('userEmail') || document.getElementById('userEmail').textContent;
+            const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
+            
+            try {
+                // Call backend API to resend code
+                const response = await fetch('http://localhost:3000/api/auth/send-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        fullname: userData.fullname || 'User'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.demoCode) {
+                        verificationCode = result.demoCode;
+                        localStorage.setItem('demoCode', result.demoCode);
+                        alert(`New verification code sent to ${userEmail}\n\nFor demo purposes, the code is: ${result.demoCode}`);
+                    } else {
+                        alert(`New verification code sent to ${userEmail}`);
+                    }
+                    
+                    timeLeft = 600; // Reset timer
+                    clearInputs();
+                } else {
+                    alert('Failed to resend code. Please try again.');
+                }
+                
+            } catch (error) {
+                console.error('Resend code error:', error);
+                // Fallback to demo mode
+                verificationCode = generateVerificationCode();
+                localStorage.setItem('demoCode', verificationCode);
+                alert(`Demo mode: New verification code generated: ${verificationCode}`);
+                timeLeft = 600;
+                clearInputs();
+            }
+        }
+        
+        // Clear input fields
+        function clearInputs() {
+            const inputs = document.querySelectorAll('.code-input');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+            inputs[0].focus();
+        }
+        
+        // Disable inputs when code expires
+        function disableInputs() {
+            const inputs = document.querySelectorAll('.code-input');
+            const button = document.querySelector('.verify-btn');
+            
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            button.disabled = true;
+            button.textContent = 'Code Expired';
+        }
+    </script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

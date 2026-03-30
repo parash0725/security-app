@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Security</title>
+    <!-- Bootstrap CSS -->\n    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">\n    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-header {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: var(--second-color);
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-bio {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--second-color);
+        }
+
+        .profile-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .profile-section {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            color: var(--second-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit-btn {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .edit-btn:hover {
+            background-color: var(--second-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            color: var(--second-color);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .skill-tag {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .skill-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .social-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .social-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .social-input i {
+            color: var(--primary-color);
+            width: 20px;
+        }
+
+        .save-btn {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .save-btn:hover {
+            background-color: var(--second-color);
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-logo">Security</a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="profile.html" class="active">Profile</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="network.html">Network</a></li>
+                <li><a href="messages.html">Messages</a></li>
+                <li><a href="search.html">Search</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <a href="#" onclick="handleLogout()" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                    <button class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <input type="file" id="avatarInput" style="display: none;" accept="image/*">
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">John Doe</h1>
+                    <p class="profile-title">Full Stack Developer</p>
+                    <p class="profile-bio">Passionate developer with 5+ years of experience in web development. Love creating innovative solutions and connecting with other professionals.</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Projects</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">156</div>
+                            <div class="stat-label">Connections</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">Years Exp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Sections -->
+            <div class="profile-sections">
+                <!-- Basic Information -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        Basic Information
+                        <button class="edit-btn" onclick="toggleEdit('basic')">Edit</button>
+                    </h2>
+                    <div id="basic-view">
+                        <p><strong>Full Name:</strong> John Doe</p>
+                        <p><strong>Email:</strong> john.doe@example.com</p>
+                        <p><strong>Location:</strong> New York, USA</p>
+                        <p><strong>Company:</strong> Tech Solutions Inc.</p>
+                    </div>
+                    <div id="basic-edit" style="display: none;">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="fullName" value="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" value="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="location" value="New York, USA">
+                        </div>
+                        <div class="form-group">
+                            <label>Company</label>
+                            <input type="text" id="company" value="Tech Solutions Inc.">
+                        </div>
+                        <button class="save-btn" onclick="saveBasicInfo()">Save</button>
+                    </div>
+                </div>
+
+                <!-- Professional Summary -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        Professional Summary
+                        <button class="edit-btn" onclick="toggleEdit('summary')">Edit</button>
+                    </h2>
+                    <div id="summary-view">
+                        <p>Full Stack Developer with expertise in React, Node.js, and PostgreSQL. Experienced in building scalable web applications and leading development teams.</p>
+                    </div>
+                    <div id="summary-edit" style="display: none;">
+                        <div class="form-group">
+                            <label>Professional Summary</label>
+                            <textarea id="summary" rows="4">Full Stack Developer with expertise in React, Node.js, and PostgreSQL. Experienced in building scalable web applications and leading development teams.</textarea>
+                        </div>
+                        <button class="save-btn" onclick="saveSummary()">Save</button>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        Skills
+                        <button class="edit-btn" onclick="toggleEdit('skills')">Edit</button>
+                    </h2>
+                    <div id="skills-view">
+                        <div class="skills-container">
+                            <span class="skill-tag">JavaScript <span class="skill-remove">&times;</span></span>
+                            <span class="skill-tag">React <span class="skill-remove">&times;</span></span>
+                            <span class="skill-tag">Node.js <span class="skill-remove">&times;</span></span>
+                            <span class="skill-tag">PostgreSQL <span class="skill-remove">&times;</span></span>
+                            <span class="skill-tag">Python <span class="skill-remove">&times;</span></span>
+                            <span class="skill-tag">Docker <span class="skill-remove">&times;</span></span>
+                        </div>
+                    </div>
+                    <div id="skills-edit" style="display: none;">
+                        <div class="form-group">
+                            <label>Add Skills</label>
+                            <input type="text" id="skillInput" placeholder="Type a skill and press Enter">
+                        </div>
+                        <div class="skills-container" id="editSkillsContainer"></div>
+                        <button class="save-btn" onclick="saveSkills()">Save</button>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="profile-section">
+                    <h2 class="section-title">
+                        Social Links
+                        <button class="edit-btn" onclick="toggleEdit('social')">Edit</button>
+                    </h2>
+                    <div id="social-view">
+                        <div class="social-links-grid">
+                            <div class="social-input">
+                                <i class="fab fa-linkedin"></i>
+                                <span>linkedin.com/in/johndoe</span>
+                            </div>
+                            <div class="social-input">
+                                <i class="fab fa-github"></i>
+                                <span>github.com/johndoe</span>
+                            </div>
+                            <div class="social-input">
+                                <i class="fas fa-globe"></i>
+                                <span>johndoe.dev</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="social-edit" style="display: none;">
+                        <div class="form-group">
+                            <label>LinkedIn</label>
+                            <input type="text" id="linkedin" value="linkedin.com/in/johndoe">
+                        </div>
+                        <div class="form-group">
+                            <label>GitHub</label>
+                            <input type="text" id="github" value="github.com/johndoe">
+                        </div>
+                        <div class="form-group">
+                            <label>Website</label>
+                            <input type="text" id="website" value="johndoe.dev">
+                        </div>
+                        <button class="save-btn" onclick="saveSocial()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Security</h3>
+                <p>Your professional networking platform for connecting talented professionals and showcasing amazing work.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="dashboard.html">Home</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="network.html">Network</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Security. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Check login state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const username = localStorage.getItem('username');
+            
+            if (!isLoggedIn) {
+                window.location.href = '../register/login.html';
+                return;
+            }
+            
+            // Update profile name with username
+            const profileName = document.querySelector('.profile-name');
+            if (profileName && username) {
+                profileName.textContent = username;
+            }
+        });
+
+        // Toggle edit modes
+        function toggleEdit(section) {
+            const viewElement = document.getElementById(section + '-view');
+            const editElement = document.getElementById(section + '-edit');
+            
+            if (viewElement.style.display === 'none') {
+                viewElement.style.display = 'block';
+                editElement.style.display = 'none';
+            } else {
+                viewElement.style.display = 'none';
+                editElement.style.display = 'block';
+                
+                // Initialize edit mode for specific sections
+                if (section === 'skills') {
+                    initializeSkillsEdit();
+                }
+            }
+        }
+
+        // Initialize skills edit mode
+        function initializeSkillsEdit() {
+            const container = document.getElementById('editSkillsContainer');
+            const existingSkills = ['JavaScript', 'React', 'Node.js', 'PostgreSQL', 'Python', 'Docker'];
+            
+            container.innerHTML = '';
+            existingSkills.forEach(skill => {
+                const skillTag = document.createElement('span');
+                skillTag.className = 'skill-tag';
+                skillTag.innerHTML = `${skill} <span class="skill-remove" onclick="removeSkill(this)">&times;</span>`;
+                container.appendChild(skillTag);
+            });
+            
+            // Add enter key listener for skill input
+            document.getElementById('skillInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSkill(this.value);
+                    this.value = '';
+                }
+            });
+        }
+
+        // Add skill
+        function addSkill(skill) {
+            if (skill.trim()) {
+                const container = document.getElementById('editSkillsContainer');
+                const skillTag = document.createElement('span');
+                skillTag.className = 'skill-tag';
+                skillTag.innerHTML = `${skill} <span class="skill-remove" onclick="removeSkill(this)">&times;</span>`;
+                container.appendChild(skillTag);
+            }
+        }
+
+        // Remove skill
+        function removeSkill(element) {
+            element.parentElement.remove();
+        }
+
+        // Save functions (for now, just toggle back to view mode)
+        function saveBasicInfo() {
+            toggleEdit('basic');
+            // TODO: Save to backend
+        }
+
+        function saveSummary() {
+            toggleEdit('summary');
+            // TODO: Save to backend
+        }
+
+        function saveSkills() {
+            toggleEdit('skills');
+            // TODO: Save to backend
+        }
+
+        function saveSocial() {
+            toggleEdit('social');
+            // TODO: Save to backend
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userData');
+            window.location.href = '../register/login.html';
+        }
+
+        // Handle avatar upload
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatar = document.querySelector('.profile-avatar');
+                    avatar.innerHTML = `
+                        <img src="${e.target.result}" alt="Profile Avatar">
+                        <button class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <input type="file" id="avatarInput" style="display: none;" accept="image/*">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle skill tag removal in view mode
+        document.querySelectorAll('.skill-remove').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+        });
+    </script>
+    <!-- Bootstrap JS -->\n    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>\n</body>
+</html>
+
+

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up Form - Security</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .recaptcha-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .g-recaptcha {
+            display: inline-block;
+            transform: scale(0.9);
+            transform-origin: 0 0;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .remember-me label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--second-color);
+        }
+        
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+        
+        .terms-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .terms-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="login_container">
+            <div class="login_title">
+                <span>Sign Up</span>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="text" id="fullname" class="input_field" required>
+                <label for="fullname" class="label">Full Name</label>
+                <i class="fa-regular fa-user icon"></i>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="email" id="email" class="input_field" required>
+                <label for="email" class="label">Email</label>
+                <i class="fa-regular fa-envelope icon"></i>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="text" id="username" class="input_field" required>
+                <label for="username" class="label">Username</label>
+                <i class="fa-regular fa-user icon"></i>
+            </div>
+
+            <div class="input_wrapper">
+                <select id="role" class="input_field" required>
+                    <option value="">Select Role</option>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <label for="role" class="label">Role</label>
+                <i class="fa-solid fa-user-shield icon"></i>
+            </div>
+
+            <div class="input_wrapper">
+                <label>
+                    <input type="checkbox" id="terms" name="terms">
+                    I agree to the <a href="#" onclick="showTermsModal()">Terms & Conditions</a>
+                </label>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="password" id="password" class="input_field" placeholder="Password" oninput="checkPasswordStrength()" required>
+                <label for="password" class="label">Password</label>
+                <i class="fa-solid fa-lock icon"></i>
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div id="passwordStrength" style="margin: 10px 0; display: none;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                    <span style="color: var(--second-color); font-size: 0.9rem;">Password Strength:</span>
+                    <span id="strengthText" style="font-weight: bold;"></span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
+                    <div id="strengthBar" style="height: 100%; width: 0%; transition: all 0.3s; border-radius: 10px;"></div>
+                </div>
+                <div id="passwordTips" style="margin-top: 5px; font-size: 0.8rem; color: var(--second-color);"></div>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="password" id="confirm_password" class="input_field" required onkeyup="checkPasswordMatch()">
+                <label for="confirm_password" class="label">Confirm Password</label>
+                <i class="fa-solid fa-lock icon"></i>
+            </div>
+
+            <!-- Password Match Indicator -->
+            <div id="passwordMatch" style="margin: 5px 0; font-size: 0.8rem; display: none;"></div>
+
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="terms">
+                    <label for="terms">I agree to Terms & Conditions</label>
+                </div>
+
+                <!-- Google reCAPTCHA -->
+                <div class="recaptcha-container">
+                    <div class="g-recaptcha" data-sitekey="6LfH-5csAAAAACKEu4_V1X5ssWlUhlFFux2AmD85" data-callback="enableSignupBtn"></div>
+                </div>
+
+                <div class="input_wrapper">
+                    <input type="submit" class="input-submit" value="Sign Up" onclick="handleSignup(event)">
+                </div>
+
+            </div>
+
+            <div class="signup">
+                <span>Already have an account <a href="login.html">Login</a></span>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+        // Common weak passwords and patterns
+        const commonPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein', 'welcome', 'monkey'];
+        const dictionaryWords = ['hello', 'world', 'user', 'login', 'test', 'demo', 'sample'];
+
+        // Password strength evaluation function
+        function evaluatePasswordStrength(password) {
+            let score = 0;
+            let feedback = [];
+            
+            // Length check
+            if (password.length >= 8) {
+                score += 20;
+            } else {
+                feedback.push('Use at least 8 characters');
+            }
+            
+            if (password.length >= 12) {
+                score += 10;
+            }
+            
+            // Character variety checks
+            if (/[a-z]/.test(password)) {
+                score += 15;
+            } else {
+                feedback.push('Include lowercase letters');
+            }
+            
+            if (/[A-Z]/.test(password)) {
+                score += 15;
+            } else {
+                feedback.push('Include uppercase letters');
+            }
+            
+            if (/[0-9]/.test(password)) {
+                score += 15;
+            } else {
+                feedback.push('Include numbers');
+            }
+            
+            if (/[^A-Za-z0-9]/.test(password)) {
+                score += 15;
+            } else {
+                feedback.push('Include special characters');
+            }
+            
+            // Common password check
+            const lowerPassword = password.toLowerCase();
+            if (commonPasswords.some(common => lowerPassword.includes(common))) {
+                score -= 30;
+                feedback.push('Avoid common passwords');
+            }
+            
+            // Dictionary words check
+            if (dictionaryWords.some(word => lowerPassword.includes(word))) {
+                score -= 15;
+                feedback.push('Avoid dictionary words');
+            }
+            
+            // Repeated patterns check
+            if (/(.)\1{2,}/.test(password)) {
+                score -= 10;
+                feedback.push('Avoid repeated characters');
+            }
+            
+            // Sequential patterns check
+            if (/(012|123|234|345|456|567|678|789|abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)/i.test(password)) {
+                score -= 10;
+                feedback.push('Avoid sequential patterns');
+            }
+            
+            // Normalize score
+            score = Math.max(0, Math.min(100, score));
+            
+            return { score, feedback };
+        }
+
+        // Password strength checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const passwordTips = document.getElementById('passwordTips');
+            
+            if (password.length === 0) {
+                strengthDiv.style.display = 'none';
+                return;
+            }
+            
+            strengthDiv.style.display = 'block';
+            
+            const { score, feedback } = evaluatePasswordStrength(password);
+            
+            // Update strength bar
+            strengthBar.style.width = score + '%';
+            
+            // Determine strength level
+            let strength, color, textColor;
+            if (score < 30) {
+                strength = 'Weak';
+                color = '#ff4444';
+                textColor = '#ff6666';
+            } else if (score < 60) {
+                strength = 'Medium';
+                color = '#ffaa00';
+                textColor = '#ffcc66';
+            } else if (score < 80) {
+                strength = 'Strong';
+                color = '#00aaff';
+                textColor = '#66ccff';
+            } else {
+                strength = 'Very Strong';
+                color = '#00ff00';
+                textColor = '#66ff66';
+            }
+            
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = strength;
+            strengthText.style.color = textColor;
+            
+            // Update tips
+            if (feedback.length > 0) {
+                passwordTips.innerHTML = '<i class="fas fa-info-circle"></i> Tips: ' + feedback.join(', ');
+            } else {
+                passwordTips.innerHTML = '<i class="fas fa-check-circle" style="color: #00ff00;"></i> Excellent password!';
+            }
+        }
+
+        // Password match checker
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const matchDiv = document.getElementById('passwordMatch');
+            
+            if (confirmPassword.length === 0) {
+                matchDiv.style.display = 'none';
+                return;
+            }
+            
+            matchDiv.style.display = 'block';
+            
+            if (password === confirmPassword) {
+                matchDiv.innerHTML = '<i class="fas fa-check-circle" style="color: #00ff00;"></i> Passwords match!';
+                matchDiv.style.color = '#00ff00';
+            } else {
+                matchDiv.innerHTML = '<i class="fas fa-times-circle" style="color: #ff4444;"></i> Passwords do not match';
+                matchDiv.style.color = '#ff4444';
+            }
+        }
+
+        // Enhanced signup handler
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const termsAccepted = document.getElementById('terms').checked;
+            
+            // Validation
+            if (!fullname || !email || !username || !role || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Password strength validation
+            const { score } = evaluatePasswordStrength(password);
+            if (score < 30) {
+                alert('Password is too weak. Please choose a stronger password.');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Username validation
+            if (username.length < 3) {
+                alert('Username must be at least 3 characters long');
+                return;
+            }
+            
+            if (!termsAccepted) {
+                alert('Please accept the Terms & Conditions');
+                return;
+            }
+            
+            // reCAPTCHA validation
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                alert('Please complete the reCAPTCHA verification');
+                return;
+            }
+            
+            try {
+                // Call backend registration API
+                const response = await fetch('http://localhost:3000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullname: fullname,
+                        email: email,
+                        username: username,
+                        role: role,
+                        password: password,
+                        passwordStrength: score,
+                        recaptchaResponse: recaptchaResponse
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Call backend API to send verification email
+                    try {
+                        const verificationResponse = await fetch('http://localhost:3000/api/auth/send-verification', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    email: email,
+                                    fullname: fullname
+                                })
+                            });
+                            
+                            const emailResult = await verificationResponse.json();
+                            
+                            if (emailResult.success) {
+                                localStorage.setItem('demoCode', emailResult.demoCode);
+                                localStorage.setItem('userEmail', email); // Store real email
+                                
+                                if (emailResult.isDemo) {
+                                    alert(`Demo mode: Registration successful! Your verification code is: ${emailResult.demoCode}\n\nIn production, this code would be sent to: ${email}`);
+                                } else {
+                                    alert(`Registration successful! Verification code sent to ${email}\n\nFor demo purposes, the code is: ${emailResult.demoCode}`);
+                                }
+                            } else {
+                                alert('Registration successful! Please check your email for verification code.');
+                                localStorage.setItem('userEmail', email); // Store real email
+                            }
+                            
+                            window.location.href = 'email-verification.html';
+                        } catch (emailError) {
+                            console.error('Email service error:', emailError);
+                            alert('Registration successful! Email verification temporarily disabled.');
+                            window.location.href = 'email-verification.html';
+                        }
+                    } else {
+                        alert(result.message || 'Registration failed');
+                    }
+                    
+                } catch (error) {
+                console.error('Registration error:', error);
+                // Fallback to demo mode
+                alert('Server connection error. Please try again later.');
+            }
+        }
+
+        // Terms & Conditions modal
+        function showTermsModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                max-width: 500px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                text-align: center;
+            `;
+            
+            modalContent.innerHTML = `
+                <h2>Terms & Conditions</h2>
+                <div style="text-align: left; max-height: 400px; overflow-y: auto; padding: 20px;">
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By accessing and using Security, you agree to be bound by the following terms and conditions:</p>
+                    <ul style="text-align: left; line-height: 1.6;">
+                        <li><strong>Account Registration:</strong> You must provide accurate and complete information when creating an account.</li>
+                        <li><strong>Privacy Policy:</strong> We respect your privacy and will not share your personal information without consent.</li>
+                        <li><strong>Acceptable Use:</strong> You agree to use Security for lawful purposes only and in accordance with these terms.</li>
+                        <li><strong>Prohibited Activities:</strong> You agree not to engage in any illegal, harmful, or unauthorized activities.</li>
+                        <li><strong>Intellectual Property:</strong> All content and materials are the property of Security.</li>
+                        <li><strong>Limitation of Liability:</strong> Security is provided "as is" without warranties of any kind.</li>
+                        <li><strong>Modification of Terms:</strong> We reserve the right to modify these terms at any time.</li>
+                    </ul>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="closeTermsModal()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">I Agree</button>
+                        <button onclick="closeTermsModal()" style="background: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 24px;
+                cursor: pointer;
+                background: none;
+                border: none;
+                color: #666;
+            `;
+            closeBtn.onclick = closeTermsModal;
+            
+            modal.appendChild(modalContent);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+        }
+        
+        function closeTermsModal() {
+            const modal = document.querySelector('[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Simple password hashing function (for demo - use bcrypt in production)
+        function hashPassword(password) {
+            // This is a simple hash for demonstration
+            // In production, use bcrypt or similar
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash;
+        }
+
+        // Enable signup button after reCAPTCHA is completed
+        function enableSignupBtn() {
+            document.getElementById('signupBtn').disabled = false;
+        }
+
+        // Input sanitization
+        function sanitizeInput(input) {
+            return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                     .replace(/javascript:/gi, '')
+                     .replace(/on\w+\s*=/gi, '');
+        }
+
+        // Rate limiting (simple implementation)
+        let signupAttempts = 0;
+        const maxAttempts = 5;
+        const attemptTimeout = 15 * 60 * 1000; // 15 minutes
+
+        function checkRateLimit() {
+            const lastAttempt = localStorage.getItem('lastSignupAttempt');
+            const now = Date.now();
+            
+            if (lastAttempt && now - parseInt(lastAttempt) < attemptTimeout) {
+                const timeLeft = Math.ceil((attemptTimeout - (now - parseInt(lastAttempt))) / 60000);
+                alert(`Too many signup attempts. Please try again in ${timeLeft} minutes.`);
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

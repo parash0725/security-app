@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form - Security</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .recaptcha-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .g-recaptcha {
+            display: inline-block;
+            transform: scale(0.9);
+            transform-origin: 0 0;
+        }
+        
+        #loginBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="login_container">
+            <div class="login_title">
+                <span>Login</span>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="text" id="user" class="input_field" required>
+                <label for="user" class="label">Username</label>
+                <i class="fa-regular fa-user icon"></i>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="password" id="pass" class="input_field" required>
+                <label for="pass" class="label">Password</label>
+                <i class="fa-solid fa-lock icon"></i>
+            </div>
+
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember Me</label>
+                </div>
+
+                <div class="forgot">
+                    <a href="#">Forgot Password</a>
+                </div>
+
+                <!-- Google reCAPTCHA -->
+                <div class="recaptcha-container">
+                    <div class="g-recaptcha" data-sitekey="6LfH-5csAAAAACKEu4_V1X5ssWlUhlFFux2AmD85" data-callback="enableLoginBtn"></div>
+                </div>
+            </div>
+
+            <div class="input_wrapper">
+                <input type="submit" class="input-submit" value="Login" onclick="handleLogin(event)" id="loginBtn" disabled>
+            </div>
+
+            <div class="signup">
+                <span>Don't have an account <a href="signup.html">Sign Up</a></span>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Enable login button after reCAPTCHA is completed
+    function enableLoginBtn() {
+        document.getElementById('loginBtn').disabled = false;
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        
+        // Get form values
+        const username = document.getElementById('user').value;
+        const password = document.getElementById('pass').value;
+        
+        // Remove previous error messages
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Validation
+        if (!username || !password) {
+            showError('Please enter both username and password');
+            return;
+        }
+        
+        // reCAPTCHA validation
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse) {
+            showError('Please complete the reCAPTCHA verification');
+            return;
+        }
+        
+        try {
+            // Call backend login API
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    recaptchaResponse: recaptchaResponse
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Store authentication data
+                localStorage.setItem('authToken', result.token);
+                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                alert(`Login successful! Welcome ${result.user.fullname} (${result.user.role})`);
+                window.location.href = '../dashboard/dashboard.html';
+            } else {
+                showError(result.message || 'Login failed');
+            }
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            // Fallback to demo mode for testing
+            if (username === 'admin' && password === 'admin123') {
+                const demoUser = {
+                    id: 1,
+                    fullname: 'System Administrator',
+                    email: 'admin@security.com',
+                    username: 'admin',
+                    role: 'admin'
+                };
+                
+                localStorage.setItem('authToken', 'demo-token-' + Date.now());
+                localStorage.setItem('currentUser', JSON.stringify(demoUser));
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                alert('Demo login successful! Welcome Admin');
+                window.location.href = '../dashboard/dashboard.html';
+            } else {
+                showError('Server connection error. Please try again.');
+            }
+        }
+    }
+
+    function showError(message) {
+        const loginContainer = document.querySelector('.login_container');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        errorDiv.style.color = '#ff4444';
+        errorDiv.style.fontSize = '0.8rem';
+        errorDiv.style.marginTop = '10px';
+        errorDiv.style.textAlign = 'center';
+        loginContainer.appendChild(errorDiv);
+        
+        // Remove error after 3 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 3000);
+    }
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
