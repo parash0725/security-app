@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Security</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .search-header {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: var(--second-color);
+        }
+
+        .search-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .main-search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--primary-color);
+            border-radius: 25px;
+            color: var(--second-color);
+            font-size: 1.1rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--second-color);
+            opacity: 0.7;
+        }
+
+        .search-btn {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .search-btn:hover {
+            background-color: var(--second-color);
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            color: var(--second-color);
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--second-color);
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .search-results {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .results-section {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            color: var(--second-color);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .results-count {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .person-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .person-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .person-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .person-info {
+            flex: 1;
+        }
+
+        .person-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .person-title {
+            font-size: 0.9rem;
+            color: var(--second-color);
+            opacity: 0.8;
+        }
+
+        .person-bio {
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .person-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .skill-tag {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .person-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--primary-color);
+            background-color: transparent;
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+        }
+
+        .action-btn.primary {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+        }
+
+        .action-btn.primary:hover {
+            background-color: var(--second-color);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-image-placeholder {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .project-description {
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .project-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+        }
+
+        .author-name {
+            font-size: 0.9rem;
+            color: var(--second-color);
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-tag {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--second-color);
+            opacity: 0.7;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .suggestions {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .suggestions-title {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-item {
+            color: var(--second-color);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .suggestion-item:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-search-bar {
+                flex-direction: column;
+            }
+
+            .search-filters {
+                flex-direction: column;
+            }
+
+            .people-grid,
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-logo">Security</a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="network.html">Network</a></li>
+                <li><a href="messages.html">Messages</a></li>
+                <li><a href="search.html" class="active">Search</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <a href="#" onclick="handleLogout()" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="search-container">
+            <!-- Search Header -->
+            <div class="search-header">
+                <h1 class="search-title">Discover Talent & Projects</h1>
+                <div class="main-search-bar">
+                    <input type="text" class="search-input" placeholder="Search for people, projects, skills..." id="mainSearchInput">
+                    <button class="search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                </div>
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <label class="filter-label">Type:</label>
+                        <select class="filter-select" id="typeFilter">
+                            <option value="all">All</option>
+                            <option value="people">People</option>
+                            <option value="projects">Projects</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Location:</label>
+                        <select class="filter-select" id="locationFilter">
+                            <option value="all">All Locations</option>
+                            <option value="new-york">New York</option>
+                            <option value="san-francisco">San Francisco</option>
+                            <option value="london">London</option>
+                            <option value="remote">Remote</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Experience:</label>
+                        <select class="filter-select" id="experienceFilter">
+                            <option value="all">All Levels</option>
+                            <option value="junior">Junior (0-2 years)</option>
+                            <option value="mid">Mid (3-5 years)</option>
+                            <option value="senior">Senior (6-10 years)</option>
+                            <option value="expert">Expert (10+ years)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Tabs -->
+            <div class="search-tabs">
+                <button class="tab-btn active" onclick="switchTab('all')">All Results</button>
+                <button class="tab-btn" onclick="switchTab('people')">People</button>
+                <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
+            </div>
+
+            <!-- Search Results -->
+            <div class="search-results">
+                <!-- People Results -->
+                <div class="results-section" id="peopleResults">
+                    <div class="section-header">
+                        <h2 class="section-title">People</h2>
+                        <span class="results-count">12 results</span>
+                    </div>
+                    <div class="people-grid">
+                        <!-- Person Card 1 -->
+                        <div class="person-card">
+                            <div class="person-header">
+                                <div class="person-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="person-info">
+                                    <div class="person-name">Alex Thompson</div>
+                                    <div class="person-title">Senior Full Stack Developer</div>
+                                </div>
+                            </div>
+                            <div class="person-bio">Passionate developer with 8+ years of experience building scalable web applications. Expert in React, Node.js, and cloud architecture.</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">AWS</span>
+                                <span class="skill-tag">TypeScript</span>
+                            </div>
+                            <div class="person-actions">
+                                <button class="action-btn primary">Connect</button>
+                                <button class="action-btn">View Profile</button>
+                            </div>
+                        </div>
+
+                        <!-- Person Card 2 -->
+                        <div class="person-card">
+                            <div class="person-header">
+                                <div class="person-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="person-info">
+                                    <div class="person-name">Maria Garcia</div>
+                                    <div class="person-title">UX/UI Designer</div>
+                                </div>
+                            </div>
+                            <div class="person-bio">Creative designer focused on user-centered design. Specialized in mobile app design and design systems.</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Figma</span>
+                                <span class="skill-tag">Adobe XD</span>
+                                <span class="skill-tag">Prototyping</span>
+                                <span class="skill-tag">Mobile Design</span>
+                            </div>
+                            <div class="person-actions">
+                                <button class="action-btn primary">Connect</button>
+                                <button class="action-btn">View Profile</button>
+                            </div>
+                        </div>
+
+                        <!-- Person Card 3 -->
+                        <div class="person-card">
+                            <div class="person-header">
+                                <div class="person-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="person-info">
+                                    <div class="person-name">James Wilson</div>
+                                    <div class="person-title">Data Scientist</div>
+                                </div>
+                            </div>
+                            <div class="person-bio">Data scientist with expertise in machine learning and statistical analysis. Love turning data into actionable insights.</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">Machine Learning</span>
+                                <span class="skill-tag">SQL</span>
+                                <span class="skill-tag">TensorFlow</span>
+                            </div>
+                            <div class="person-actions">
+                                <button class="action-btn primary">Connect</button>
+                                <button class="action-btn">View Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Results -->
+                <div class="results-section" id="projectsResults">
+                    <div class="section-header">
+                        <h2 class="section-title">Projects</h2>
+                        <span class="results-count">8 results</span>
+                    </div>
+                    <div class="projects-grid">
+                        <!-- Project Card 1 -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <img src="../images/gallery-1.jpg" alt="E-commerce Platform">
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Modern E-commerce Platform</h3>
+                                <p class="project-description">A full-featured e-commerce platform with real-time inventory, payment processing, and analytics dashboard.</p>
+                                <div class="project-author">
+                                    <div class="author-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="author-name">by Alex Thompson</span>
+                                </div>
+                                <div class="project-tags">
+                                    <span class="project-tag">React</span>
+                                    <span class="project-tag">Node.js</span>
+                                    <span class="project-tag">MongoDB</span>
+                                    <span class="project-tag">Stripe</span>
+                                </div>
+                                <div class="person-actions">
+                                    <button class="action-btn primary">View Project</button>
+                                    <button class="action-btn">Save</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Card 2 -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <img src="../images/gallery-2.jpg" alt="Task Management App">
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Collaborative Task Manager</h3>
+                                <p class="project-description">Real-time collaborative task management application with team features and progress tracking.</p>
+                                <div class="project-author">
+                                    <div class="author-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="author-name">by Maria Garcia</span>
+                                </div>
+                                <div class="project-tags">
+                                    <span class="project-tag">Vue.js</span>
+                                    <span class="project-tag">Express</span>
+                                    <span class="project-tag">Socket.io</span>
+                                </div>
+                                <div class="person-actions">
+                                    <button class="action-btn primary">View Project</button>
+                                    <button class="action-btn">Save</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project Card 3 -->
+                        <div class="project-card">
+                            <div class="project-image">
+                                <div class="project-image-placeholder">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <div class="project-content">
+                                <h3 class="project-title">Analytics Dashboard</h3>
+                                <p class="project-description">Interactive data visualization dashboard with real-time analytics and custom reporting features.</p>
+                                <div class="project-author">
+                                    <div class="author-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="author-name">by James Wilson</span>
+                                </div>
+                                <div class="project-tags">
+                                    <span class="project-tag">D3.js</span>
+                                    <span class="project-tag">Python</span>
+                                    <span class="project-tag">Flask</span>
+                                    <span class="project-tag">PostgreSQL</span>
+                                </div>
+                                <div class="person-actions">
+                                    <button class="action-btn primary">View Project</button>
+                                    <button class="action-btn">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Suggestions -->
+            <div class="suggestions">
+                <div class="suggestions-title">Popular Searches:</div>
+                <div class="suggestion-item" onclick="setSearchTerm('React Developer')">React Developer</div>
+                <div class="suggestion-item" onclick="setSearchTerm('UI Designer')">UI Designer</div>
+                <div class="suggestion-item" onclick="setSearchTerm('Full Stack')">Full Stack</div>
+                <div class="suggestion-item" onclick="setSearchTerm('Data Science')">Data Science</div>
+                <div class="suggestion-item" onclick="setSearchTerm('Mobile App')">Mobile App</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Security</h3>
+                <p>Your professional networking platform for connecting talented professionals and showcasing amazing work.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="dashboard.html">Home</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="network.html">Network</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Security. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Check login state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                window.location.href = '../register/login.html';
+                return;
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide results sections
+            const peopleResults = document.getElementById('peopleResults');
+            const projectsResults = document.getElementById('projectsResults');
+
+            if (tab === 'all') {
+                peopleResults.style.display = 'block';
+                projectsResults.style.display = 'block';
+            } else if (tab === 'people') {
+                peopleResults.style.display = 'block';
+                projectsResults.style.display = 'none';
+            } else if (tab === 'projects') {
+                peopleResults.style.display = 'none';
+                projectsResults.style.display = 'block';
+            }
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('mainSearchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const locationFilter = document.getElementById('locationFilter').value;
+            const experienceFilter = document.getElementById('experienceFilter').value;
+
+            console.log('Searching for:', searchTerm);
+            console.log('Filters:', { typeFilter, locationFilter, experienceFilter });
+
+            // TODO: Implement actual search logic with backend
+            // For now, just show a message
+            if (searchTerm) {
+                alert(`Searching for "${searchTerm}" with filters applied. (This will be connected to backend later)`);
+            }
+        }
+
+        // Real-time search
+        document.getElementById('mainSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Set search term from suggestions
+        function setSearchTerm(term) {
+            document.getElementById('mainSearchInput').value = term;
+            performSearch();
+        }
+
+        // Filter change handlers
+        document.getElementById('typeFilter').addEventListener('change', performSearch);
+        document.getElementById('locationFilter').addEventListener('change', performSearch);
+        document.getElementById('experienceFilter').addEventListener('change', performSearch);
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userData');
+            window.location.href = '../register/login.html';
+        }
+    </script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
