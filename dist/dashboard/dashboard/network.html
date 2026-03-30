@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network - Security</title>
+    <!-- Bootstrap CSS -->\n    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">\n    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .network-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .network-header {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: var(--second-color);
+        }
+
+        .network-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .network-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--second-color);
+        }
+
+        .network-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .connections-section {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            color: var(--second-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .connection-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--second-color);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .connections-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .connection-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .connection-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .connection-info {
+            flex: 1;
+        }
+
+        .connection-name {
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .connection-title {
+            font-size: 0.9rem;
+            color: var(--second-color);
+            opacity: 0.8;
+        }
+
+        .connection-status {
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .status-connected {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .find-people-section {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 2rem;
+            color: var(--second-color);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 25px;
+            color: var(--second-color);
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--second-color);
+            opacity: 0.7;
+        }
+
+        .search-btn {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-btn:hover {
+            background-color: var(--second-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            color: var(--second-color);
+        }
+
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .person-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .person-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin: 0 auto 1rem;
+        }
+
+        .person-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .person-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--second-color);
+        }
+
+        .person-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .skill-tag {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+
+        .connect-btn {
+            background-color: var(--primary-color);
+            color: var(--black-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .connect-btn:hover {
+            background-color: var(--second-color);
+        }
+
+        .connect-btn.pending {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .connect-btn.connected {
+            background-color: transparent;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .network-content {
+                grid-template-columns: 1fr;
+            }
+
+            .network-stats {
+                justify-content: center;
+            }
+
+            .people-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-logo">Security</a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="network.html" class="active">Network</a></li>
+                <li><a href="messages.html">Messages</a></li>
+                <li><a href="search.html">Search</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <a href="#" onclick="handleLogout()" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="network-container">
+            <!-- Network Header -->
+            <div class="network-header">
+                <h1 class="network-title">My Network</h1>
+                <div class="network-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Connections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">23</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Content -->
+            <div class="network-content">
+                <!-- Connections Section -->
+                <div class="connections-section">
+                    <h2 class="section-title">Connections</h2>
+                    <div class="connection-tabs">
+                        <button class="tab-btn active" onclick="switchTab('all')">All</button>
+                        <button class="tab-btn" onclick="switchTab('recent')">Recent</button>
+                        <button class="tab-btn" onclick="switchTab('pending')">Pending</button>
+                    </div>
+                    <div class="connections-list" id="connectionsList">
+                        <!-- Connection Items -->
+                        <div class="connection-item">
+                            <div class="connection-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="connection-info">
+                                <div class="connection-name">Sarah Johnson</div>
+                                <div class="connection-title">UX Designer at Google</div>
+                            </div>
+                            <span class="connection-status status-connected">Connected</span>
+                        </div>
+
+                        <div class="connection-item">
+                            <div class="connection-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="connection-info">
+                                <div class="connection-name">Michael Chen</div>
+                                <div class="connection-title">Backend Developer</div>
+                            </div>
+                            <span class="connection-status status-pending">Pending</span>
+                        </div>
+
+                        <div class="connection-item">
+                            <div class="connection-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="connection-info">
+                                <div class="connection-name">Emily Davis</div>
+                                <div class="connection-title">Product Manager</div>
+                            </div>
+                            <span class="connection-status status-connected">Connected</span>
+                        </div>
+
+                        <div class="connection-item">
+                            <div class="connection-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="connection-info">
+                                <div class="connection-name">Alex Rodriguez</div>
+                                <div class="connection-title">Data Scientist</div>
+                            </div>
+                            <span class="connection-status status-connected">Connected</span>
+                        </div>
+
+                        <div class="connection-item">
+                            <div class="connection-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="connection-info">
+                                <div class="connection-name">Lisa Wang</div>
+                                <div class="connection-title">Frontend Developer</div>
+                            </div>
+                            <span class="connection-status status-pending">Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Find People Section -->
+                <div class="find-people-section">
+                    <h2 class="section-title">Find People</h2>
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search by name, skills, or location..." id="searchInput">
+                        <button class="search-btn" onclick="searchPeople()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <select class="filter-select">
+                            <option>All Skills</option>
+                            <option>JavaScript</option>
+                            <option>Python</option>
+                            <option>React</option>
+                            <option>Node.js</option>
+                            <option>Design</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>All Locations</option>
+                            <option>New York</option>
+                            <option>San Francisco</option>
+                            <option>London</option>
+                            <option>Remote</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>All Experience</option>
+                            <option>0-2 years</option>
+                            <option>3-5 years</option>
+                            <option>6-10 years</option>
+                            <option>10+ years</option>
+                        </select>
+                    </div>
+                    <div class="people-grid" id="peopleGrid">
+                        <!-- People Cards -->
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">David Kim</div>
+                            <div class="person-title">Full Stack Developer</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">MongoDB</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">Jennifer Lee</div>
+                            <div class="person-title">UI/UX Designer</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Figma</span>
+                                <span class="skill-tag">Adobe XD</span>
+                                <span class="skill-tag">Prototyping</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">Robert Taylor</div>
+                            <div class="person-title">DevOps Engineer</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Docker</span>
+                                <span class="skill-tag">Kubernetes</span>
+                                <span class="skill-tag">AWS</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">Amanda Foster</div>
+                            <div class="person-title">Project Manager</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Agile</span>
+                                <span class="skill-tag">Scrum</span>
+                                <span class="skill-tag">Leadership</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">Chris Martinez</div>
+                            <div class="person-title">Mobile Developer</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">React Native</span>
+                                <span class="skill-tag">iOS</span>
+                                <span class="skill-tag">Android</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+
+                        <div class="person-card">
+                            <div class="person-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="person-name">Sophie Anderson</div>
+                            <div class="person-title">Data Analyst</div>
+                            <div class="person-skills">
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">SQL</span>
+                                <span class="skill-tag">Tableau</span>
+                            </div>
+                            <button class="connect-btn" onclick="sendConnectionRequest(this)">Connect</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Security</h3>
+                <p>Your professional networking platform for connecting talented professionals and showcasing amazing work.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="dashboard.html">Home</a></li>
+                    <li><a href="profile.html">Profile</a></li>
+                    <li><a href="portfolio.html">Portfolio</a></li>
+                    <li><a href="network.html">Network</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Security. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Check login state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                window.location.href = '../register/login.html';
+                return;
+            }
+        });
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter connections based on tab
+            const connectionsList = document.getElementById('connectionsList');
+            const connections = connectionsList.querySelectorAll('.connection-item');
+            
+            connections.forEach(connection => {
+                const status = connection.querySelector('.connection-status');
+                if (tab === 'all') {
+                    connection.style.display = 'flex';
+                } else if (tab === 'pending') {
+                    connection.style.display = status.classList.contains('status-pending') ? 'flex' : 'none';
+                } else if (tab === 'recent') {
+                    connection.style.display = 'flex'; // For demo, show all
+                }
+            });
+        }
+
+        // Search functionality
+        function searchPeople() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const peopleCards = document.querySelectorAll('.person-card');
+            
+            peopleCards.forEach(card => {
+                const name = card.querySelector('.person-name').textContent.toLowerCase();
+                const title = card.querySelector('.person-title').textContent.toLowerCase();
+                const skills = Array.from(card.querySelectorAll('.skill-tag'))
+                    .map(skill => skill.textContent.toLowerCase())
+                    .join(' ');
+                
+                const match = name.includes(searchTerm) || 
+                            title.includes(searchTerm) || 
+                            skills.includes(searchTerm);
+                
+                card.style.display = match ? 'block' : 'none';
+            });
+        }
+
+        // Real-time search
+        document.getElementById('searchInput').addEventListener('input', searchPeople);
+
+        // Send connection request
+        function sendConnectionRequest(button) {
+            if (button.classList.contains('pending')) {
+                // Cancel request
+                button.classList.remove('pending');
+                button.textContent = 'Connect';
+                button.classList.remove('pending');
+            } else {
+                // Send request
+                button.classList.add('pending');
+                button.textContent = 'Pending';
+                button.classList.add('pending');
+                
+                // Show success message (for demo)
+                const personName = button.closest('.person-card').querySelector('.person-name').textContent;
+                console.log(`Connection request sent to ${personName}`);
+                
+                // TODO: Send to backend
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userData');
+            window.location.href = '../register/login.html';
+        }
+    </script>
+    <!-- Bootstrap JS -->\n    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>\n</body>
+</html>
+
+
